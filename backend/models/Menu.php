@@ -12,10 +12,11 @@ use Yii;
  * @property string|null $description
  * @property int $price
  * @property string $availability
- * @property int|null $img
+ * @property string $img
  */
 class Menu extends \yii\db\ActiveRecord
 {
+    public $upload;
     /**
      * {@inheritdoc}
      */
@@ -32,6 +33,7 @@ class Menu extends \yii\db\ActiveRecord
         return [
             [['price', 'img'], 'integer'],
             [['name', 'description', 'availability'], 'string', 'max' => 50],
+            [['upload'],'file', 'extensions'=>'png,jpg', 'mimeTypes'=>'image/jpeg, image/png']
         ];
     }
 
@@ -46,7 +48,7 @@ class Menu extends \yii\db\ActiveRecord
             'description' => 'Description',
             'price' => 'Price',
             'availability' => 'Availability',
-            'img' => 'Img',
+            'upload' => 'Picture',
         ];
     }
 }

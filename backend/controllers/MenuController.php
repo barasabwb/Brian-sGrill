@@ -8,6 +8,7 @@ use app\models\MenuSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * MenuController implements the CRUD actions for Menu model.
@@ -65,10 +66,11 @@ class MenuController extends Controller
     public function actionCreate()
     {
         $model = new Menu();
+        $this->handleItemSave($model);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
+//        if ($model->load(Yii::$app->request->post()) && $this->handleItemSave()) {
+//            return $this->redirect(['view', 'id' => $model->id]);
+//        }
 
         return $this->render('create', [
             'model' => $model,
@@ -85,10 +87,11 @@ class MenuController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $this->handleItemSave($model);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
+//        if ($model->load(Yii::$app->request->post()) && $this->handleItemSave()) {
+//            return $this->redirect(['view', 'id' => $model->id]);
+//        }
 
         return $this->render('update', [
             'model' => $model,
@@ -104,10 +107,36 @@ class MenuController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $data =   $this->findModel($id);
+        $path = 'uploads/' .$data->img;
+        unlink($path);
+        $data->delete();
+
+        //$this->findModel($id)->delete();
+
 
         return $this->redirect(['index']);
     }
+    public function handleItemSave(Menu $model){
+        if($model->load(Yii::$app->request->post())){
+            $model->upload = UploadedFile::getInstance($model, 'upload');
+            if ($model->validate()){
+                if ($model->upload){
+                    $filename = time().'.'.$model->upload->extension;
+                        $filepath = 'uploads/' .$filename;
+                        if ($model->upload->saveAs($filepath)){
+
+                            $model->img = $filename;
+                        }
+                }
+                if ($model->save(false)){
+                    return $this->redirect(['view', 'id'=> $model->id]);
+                }
+            }
+        }
+
+    }
+
 
     /**
      * Finds the Menu model based on its primary key value.
